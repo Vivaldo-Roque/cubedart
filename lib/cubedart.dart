@@ -46,7 +46,12 @@ class CubeDart {
     final faceletsPtr = facelets.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
     try {
-      final result = _bindings.cubedart_solve(faceletsPtr, maxDepth, outPtr.cast(), 1024);
+      final result = _bindings.cubedart_solve(
+        faceletsPtr,
+        maxDepth,
+        outPtr.cast(),
+        1024,
+      );
       if (result == -1) throw Exception('Failed to solve or invalid facelets');
       if (result == 0) return null;
       return outPtr.cast<Utf8>().toDartString();
@@ -61,8 +66,14 @@ class CubeDart {
     final faceletsPtr = facelets.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
     try {
-      final result = _bindings.cubedart_solve_upright(faceletsPtr, maxDepth, outPtr.cast(), 1024);
-      if (result == -1) throw Exception('Failed to solve upright or invalid facelets');
+      final result = _bindings.cubedart_solve_upright(
+        faceletsPtr,
+        maxDepth,
+        outPtr.cast(),
+        1024,
+      );
+      if (result == -1)
+        throw Exception('Failed to solve upright or invalid facelets');
       if (result == 0) return null;
       return outPtr.cast<Utf8>().toDartString();
     } finally {
@@ -72,11 +83,21 @@ class CubeDart {
   }
 
   /// Obfuscates an algorithm.
-  static String obfuscate(String alg, {int numPremoves = 3, int minLength = 16}) {
+  static String obfuscate(
+    String alg, {
+    int numPremoves = 3,
+    int minLength = 16,
+  }) {
     final algPtr = alg.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
     try {
-      final result = _bindings.cubedart_obfuscate(algPtr, numPremoves, minLength, outPtr.cast(), 1024);
+      final result = _bindings.cubedart_obfuscate(
+        algPtr,
+        numPremoves,
+        minLength,
+        outPtr.cast(),
+        1024,
+      );
       if (result == -1) throw Exception('Failed to obfuscate algorithm');
       return outPtr.cast<Utf8>().toDartString();
     } finally {

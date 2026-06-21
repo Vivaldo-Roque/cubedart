@@ -12,15 +12,17 @@ void main() {
   });
 
   test('isSolved identifies solved cube', () {
-    const solvedFacelets = 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
+    const solvedFacelets =
+        'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
     expect(CubeDart.isSolved(solvedFacelets), true);
   });
 
   test('solve finds a solution', () {
     // F R U R' U' F'
-    const scrambledFacelets = 'UUFURUUUURRRRRRRRRFUFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
+    const scrambledFacelets =
+        'UUFURUUUURRRRRRRRRFUFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
     expect(CubeDart.isSolved(scrambledFacelets), false);
-    
+
     final solution = CubeDart.solve(scrambledFacelets);
     expect(solution, isNotNull);
     expect(solution!.isNotEmpty, true);

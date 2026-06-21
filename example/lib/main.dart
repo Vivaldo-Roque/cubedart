@@ -45,16 +45,17 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('CubeDart Example'),
-        ),
+        appBar: AppBar(title: const Text('CubeDart Example')),
         body: Center(
           child: _isLoading
               ? const CircularProgressIndicator()
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Scramble Algorithm:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Scramble Algorithm:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(_scramble, textAlign: TextAlign.center),
@@ -65,12 +66,15 @@ class _MyAppState extends State<MyApp> {
                     ),
                     const SizedBox(height: 20),
                     if (_solution.isNotEmpty) ...[
-                      const Text('Solution:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Solution:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(_solution, textAlign: TextAlign.center),
                       ),
-                    ]
+                    ],
                   ],
                 ),
         ),
