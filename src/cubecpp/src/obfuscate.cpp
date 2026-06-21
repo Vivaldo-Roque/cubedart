@@ -11,14 +11,14 @@ namespace cubejs {
 
 namespace {
 
-std::mt19937& rng() {
+std::mt19937& obf_rng() {
     static std::mt19937 gen(std::random_device{}());
     return gen;
 }
 
-int randint(int mn, int mx) {
+int obf_randint(int mn, int mx) {
     std::uniform_int_distribution<int> dist(mn, mx);
-    return dist(rng());
+    return dist(obf_rng());
 }
 
 }  // namespace
@@ -31,10 +31,10 @@ std::vector<int> getPremoves(int length) {
     for (int i = 0; i < length; i++) {
         int face;
         do {
-            face = randint(0, 5);
+            face = obf_randint(0, 5);
         } while (face == previous || std::abs(face - previous) == 3);
         previous = face;
-        int power = (randint(0, 1) == 0) ? 0 : 2;  // single or inverse, never double
+        int power = (obf_randint(0, 1) == 0) ? 0 : 2;  // single or inverse, never double
         result.push_back(face * 3 + power);
     }
     return result;
