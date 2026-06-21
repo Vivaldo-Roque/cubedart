@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Analyze project source
+        run: flutter analyze
+        if: matrix.os == 'ubuntu-latest'
+
+      # Tests might fail if the native library is not built by default.
+      # We first build the example app to ensure the native FFI library compiles.
+      - name: Build Example App
+        working-directory: example
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            flutter build linux
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            flutter build windows
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            flutter build macos
+          fi
+        shell: bash
+
+      # - name: Run tests
+      #   run: flutter test
