@@ -15,7 +15,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _scramble = 'Not generated yet';
   String _solution = '';
-  bool _isSolved = false;
   bool _isLoading = true;
 
   @override

@@ -34,7 +34,9 @@ class CubeDart {
     final faceletsPtr = facelets.toNativeUtf8();
     try {
       final result = _bindings.cubedart_is_solved(faceletsPtr);
-      if (result == -1) throw Exception('Invalid facelets string');
+      if (result == -1) {
+        throw Exception('Invalid facelets string');
+      }
       return result == 1;
     } finally {
       calloc.free(faceletsPtr);
@@ -52,8 +54,12 @@ class CubeDart {
         outPtr.cast(),
         1024,
       );
-      if (result == -1) throw Exception('Failed to solve or invalid facelets');
-      if (result == 0) return null;
+      if (result == -1) {
+        throw Exception('Failed to solve or invalid facelets');
+      }
+      if (result == 0) {
+        return null;
+      }
       return outPtr.cast<Utf8>().toDartString();
     } finally {
       calloc.free(faceletsPtr);
@@ -72,9 +78,12 @@ class CubeDart {
         outPtr.cast(),
         1024,
       );
-      if (result == -1)
+      if (result == -1) {
         throw Exception('Failed to solve upright or invalid facelets');
-      if (result == 0) return null;
+      }
+      if (result == 0) {
+        return null;
+      }
       return outPtr.cast<Utf8>().toDartString();
     } finally {
       calloc.free(faceletsPtr);
@@ -98,7 +107,9 @@ class CubeDart {
         outPtr.cast(),
         1024,
       );
-      if (result == -1) throw Exception('Failed to obfuscate algorithm');
+      if (result == -1) {
+        throw Exception('Failed to obfuscate algorithm');
+      }
       return outPtr.cast<Utf8>().toDartString();
     } finally {
       calloc.free(algPtr);
