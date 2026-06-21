@@ -23,6 +23,12 @@ A new Flutter FFI plugin project.
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    'CLANG_CXX_LIBRARY' => 'libc++',
+    'USER_HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/../src/cubecpp/include"'
+  }
   s.swift_version = '5.0'
 end
