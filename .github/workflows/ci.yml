@@ -32,6 +32,10 @@ jobs:
         run: flutter analyze
         if: matrix.os == 'ubuntu-latest'
 
+      - name: Install Linux Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update -y && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
       # Tests might fail if the native library is not built by default.
       # We first build the example app to ensure the native FFI library compiles.
       - name: Build Example App
