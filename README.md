@@ -1,95 +1,60 @@
-# cubedart
+# CubeDart
 
-A new Flutter FFI plugin project.
+**CubeDart** is a Flutter FFI plugin that provides a Dart client library for Cube.js by wrapping the `cubecpp` C++ client. This package allows you to seamlessly integrate Cube.js analytics into your Flutter and Dart applications across multiple platforms using native bindings.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter
-[FFI plugin](https://flutter.dev/to/ffi-package),
-a specialized package that includes native code directly invoked with Dart FFI.
+**CubeDart** é um plugin Flutter FFI que fornece uma biblioteca cliente Dart para Cube.js através de um wrapper do cliente C++ `cubecpp`. Este pacote permite integrar perfeitamente análises do Cube.js nas suas aplicações Flutter e Dart em múltiplas plataformas, utilizando bindings nativos.
 
-## Project structure
+## Features / Funcionalidades
 
-This template uses the following structure:
+- **Dart FFI Integration:** Direct and efficient communication with the native C++ library (`cubecpp`).
+- **Multi-platform:** Supports Android, iOS, macOS, Windows, and Linux.
+- **Cube.js API:** Provides the tools needed to construct and execute queries against a Cube.js backend.
 
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
-  that source code into a dynamic library.
+## Project Structure / Estrutura do Projeto
 
-* `lib`: Contains the Dart code that defines the API of the plugin, and which
-  calls into the native code using `dart:ffi`.
+* `src`: Contains the native C++ wrapper (`cubedart.cpp`, `cubedart.h`) and `cubecpp` submodule, plus a `CMakeLists.txt` for building into a dynamic library.
+* `lib`: Contains the Dart code that defines the API of the plugin, using `dart:ffi` to call into the native code.
+* Platform folders (`android`, `ios`, `windows`, etc.): Build files for bundling the native library with platform applications.
 
-* platform folders (`android`, `ios`, `windows`, etc.): Contains the build files
-  for building and bundling the native code library with the platform application.
+## Getting Started / Como Começar
 
-## Building and bundling native code
+### Prerequisites / Pré-requisitos
 
-The `pubspec.yaml` specifies FFI plugins as follows:
+To use or build this plugin, you'll need the Flutter SDK and the native build tools for your target platforms (e.g., CMake for Windows/Linux, Xcode for iOS/macOS, Android NDK for Android).
 
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        ffiPlugin: true
-```
+Para usar ou compilar este plugin, precisará do SDK do Flutter e das ferramentas de compilação nativa para as suas plataformas alvo (ex: CMake para Windows/Linux, Xcode para iOS/macOS, Android NDK para Android).
 
-This configuration invokes the native build for the various target platforms
-and bundles the binaries in Flutter applications using these FFI plugins.
+### Installation / Instalação
 
-This can be combined with dartPluginClass, such as when FFI is used for the
-implementation of one platform in a federated plugin:
+Add `cubedart` to your Flutter project's `pubspec.yaml`:
 
 ```yaml
-  plugin:
-    implements: some_other_plugin
-    platforms:
-      some_platform:
-        dartPluginClass: SomeClass
-        ffiPlugin: true
+dependencies:
+  cubedart:
+    path: /path/to/cubedart
 ```
 
-A plugin can have both FFI and method channels:
+### Generating FFI Bindings / Gerando Bindings FFI
 
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        pluginClass: SomeName
-        ffiPlugin: true
+If you modify the C++ header (`src/cubedart.h`), you need to regenerate the Dart bindings:
+
+```bash
+dart run ffigen --config ffigen.yaml
 ```
 
-The native build systems that are invoked by FFI (and method channel) plugins are:
+## Usage / Utilização
 
-* For Android: Gradle, which invokes the Android NDK for native builds.
-  * See the documentation in android/build.gradle.
-* For iOS and MacOS: Xcode, via CocoaPods.
-  * See the documentation in ios/cubedart.podspec.
-  * See the documentation in macos/cubedart.podspec.
-* For Linux and Windows: CMake.
-  * See the documentation in linux/CMakeLists.txt.
-  * See the documentation in windows/CMakeLists.txt.
+Import the library in your Dart code and call the available FFI functions.
 
-## Binding to native code
+```dart
+import 'package:cubedart/cubedart.dart';
 
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/cubedart.h`) by `package:ffigen`.
-Regenerate the bindings by running `dart run ffigen --config ffigen.yaml`.
+// Example usage of cubedart
+```
 
-## Invoking native code
+## Contributing / Contribuição
 
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/cubedart.dart`.
-
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/cubedart.dart`.
-
-## Flutter help
-
-For help getting started with Flutter, view our
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-The plugin project was generated without specifying the `--platforms` flag, so no platforms are currently supported.
-To add platforms, run `flutter create -t plugin_ffi --platforms <platforms> .` in this directory.
-You can also find a detailed instruction on how to add platforms in the `pubspec.yaml` at https://flutter.dev/to/pubspec-plugin-platforms.
+Contributions are welcome! Please make sure to update tests and bindings as appropriate.
+Contribuições são bem-vindas! Certifique-se de atualizar os testes e os bindings conforme necessário.
