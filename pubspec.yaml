@@ -1,6 +1,6 @@
 name: cubedart
 description: "A Flutter FFI plugin wrapper around CubeCPP for 3x3 Rubik's Cube obfuscation and solving."
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/Vivaldo-Roque/cubedart
 
 
