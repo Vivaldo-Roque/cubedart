@@ -96,6 +96,8 @@ class CubeDart {
     String alg, {
     int numPremoves = 3,
     int minLength = 16,
+    int maxLength = 999,
+    int maxDepth = 22,
   }) {
     final algPtr = alg.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
@@ -104,6 +106,8 @@ class CubeDart {
         algPtr,
         numPremoves,
         minLength,
+        maxLength,
+        maxDepth,
         outPtr.cast(),
         1024,
       );

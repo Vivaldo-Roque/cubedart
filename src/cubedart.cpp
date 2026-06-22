@@ -60,10 +60,10 @@ FFI_PLUGIN_EXPORT int32_t cubedart_solve_upright(const char* facelets, int32_t m
     }
 }
 
-FFI_PLUGIN_EXPORT int32_t cubedart_obfuscate(const char* alg, int32_t num_premoves, int32_t min_length, char* out_obfuscated, int32_t out_max_len) {
+FFI_PLUGIN_EXPORT int32_t cubedart_obfuscate(const char* alg, int32_t num_premoves, int32_t min_length, int32_t max_length, int32_t max_depth, char* out_obfuscated, int32_t out_max_len) {
     if (!alg || !out_obfuscated || out_max_len <= 0) return -1;
     try {
-        std::string result = obfuscate(alg, num_premoves, min_length);
+        std::string result = obfuscate(alg, num_premoves, min_length, max_length, max_depth);
         strncpy(out_obfuscated, result.c_str(), out_max_len - 1);
         out_obfuscated[out_max_len - 1] = '\0';
         return 1;

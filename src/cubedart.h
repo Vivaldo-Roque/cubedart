@@ -40,7 +40,7 @@ FFI_PLUGIN_EXPORT int32_t cubedart_solve_upright(const char* facelets, int32_t m
 
 // Obfuscates an algorithm.
 // Returns 1 on success, -1 on error.
-FFI_PLUGIN_EXPORT int32_t cubedart_obfuscate(const char* alg, int32_t num_premoves, int32_t min_length, char* out_obfuscated, int32_t out_max_len);
+FFI_PLUGIN_EXPORT int32_t cubedart_obfuscate(const char* alg, int32_t num_premoves, int32_t min_length, int32_t max_length, int32_t max_depth, char* out_obfuscated, int32_t out_max_len);
 
 // Generates a random scramble algorithm.
 // The result is copied to out_scramble.

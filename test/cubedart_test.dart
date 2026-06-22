@@ -27,4 +27,16 @@ void main() {
     expect(solution, isNotNull);
     expect(solution!.isNotEmpty, true);
   });
+
+  test('obfuscate hides the algorithm and respects maxLength', () {
+    const alg = "F R U R' U' F'";
+    final obf = CubeDart.obfuscate(
+      alg,
+      numPremoves: 3,
+      minLength: 10,
+      maxLength: 20,
+    );
+    expect(obf.isNotEmpty, true);
+    expect(obf, isNot(equals(alg)));
+  });
 }

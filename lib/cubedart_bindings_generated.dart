@@ -104,6 +104,8 @@ class CubedartBindings {
     ffi.Pointer<pkg_ffi.Utf8> alg,
     int num_premoves,
     int min_length,
+    int max_length,
+    int max_depth,
     ffi.Pointer<pkg_ffi.Utf8> out_obfuscated,
     int out_max_len,
   ) {
@@ -111,6 +113,8 @@ class CubedartBindings {
       alg,
       num_premoves,
       min_length,
+      max_length,
+      max_depth,
       out_obfuscated,
       out_max_len,
     );
@@ -123,6 +127,8 @@ class CubedartBindings {
             ffi.Pointer<pkg_ffi.Utf8>,
             ffi.Int32,
             ffi.Int32,
+            ffi.Int32,
+            ffi.Int32,
             ffi.Pointer<pkg_ffi.Utf8>,
             ffi.Int32,
           )
@@ -132,6 +138,8 @@ class CubedartBindings {
       .asFunction<
         int Function(
           ffi.Pointer<pkg_ffi.Utf8>,
+          int,
+          int,
           int,
           int,
           ffi.Pointer<pkg_ffi.Utf8>,
