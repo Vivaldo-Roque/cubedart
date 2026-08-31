@@ -326,6 +326,12 @@ Cube Cube::fromString(const std::string& str) {
         throw std::invalid_argument("Cube facelet string must be exactly 54 characters");
     }
 
+    for (char c : str) {
+        if (c != 'U' && c != 'R' && c != 'F' && c != 'D' && c != 'L' && c != 'B') {
+            throw std::invalid_argument("Cube facelet string contains invalid characters");
+        }
+    }
+
     for (int i = 0; i <= 5; i++) {
         for (int j = 0; j <= 5; j++) {
             if (str[centerFacelet[i]] == centerColor[j]) cube.center[i] = j;

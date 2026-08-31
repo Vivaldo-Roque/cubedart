@@ -29,3 +29,15 @@ if (ANDROID)
   target_link_options(cubedart PRIVATE "-Wl,-z,max-page-size=16384")
 endif()
 
+if (NOT ANDROID AND NOT IOS)
+  add_executable(cubedart_native_tests
+    "tests/test_cubedart.cpp"
+    "cubedart.cpp"
+    "cubecpp/src/cube.cpp"
+    "cubecpp/src/solver.cpp"
+    "cubecpp/src/obfuscate.cpp"
+  )
+  target_include_directories(cubedart_native_tests PRIVATE "cubecpp/include")
+endif()
+
+
