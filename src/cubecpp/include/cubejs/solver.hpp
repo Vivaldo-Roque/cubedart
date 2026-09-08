@@ -26,6 +26,8 @@ public:
 
     static std::optional<std::string> solveUpright(const Cube& cube, int maxDepth = 22);
     static std::optional<std::string> solve(const Cube& cube, int maxDepth = 22);
+    static std::optional<std::string> solveUprightOptimal(const Cube& cube, int maxDepth = 22);
+    static std::optional<std::string> solveOptimal(const Cube& cube, int maxDepth = 22);
     static std::string scramble();
 
 private:
@@ -62,6 +64,10 @@ private:
     static void phase2search(SearchState& state, int maxDepthTotal,
                               std::optional<std::string>& solution);
     static void phase2(SearchState& state, int depth, std::optional<std::string>& solution);
+
+    // Optimal search helpers
+    static void phase1Optimal(SearchState& state, int depth, int exactTotalLength, std::optional<std::string>& solution);
+    static void phase2searchOptimal(SearchState& state, int exactTotalLength, std::optional<std::string>& solution);
 };
 
 }  // namespace cubejs

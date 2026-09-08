@@ -151,9 +151,11 @@ public:
     // within maxDepth moves (shouldn't happen for maxDepth >= 20, since
     // every solvable cube can be solved in at most 20 moves).
     std::optional<std::string> solveUpright(int maxDepth = 22) const;
+    std::optional<std::string> solveUprightOptimal(int maxDepth = 22) const;
 
     // Solves the cube regardless of orientation.
     std::optional<std::string> solve(int maxDepth = 22) const;
+    std::optional<std::string> solveOptimal(int maxDepth = 22) const;
 
     // Generates a random scramble algorithm (the inverse of solving a
     // random cube), suitable for handing to a human to scramble a

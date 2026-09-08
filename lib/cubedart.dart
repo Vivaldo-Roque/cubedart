@@ -96,7 +96,8 @@ class CubeDart {
     String alg, {
     int numPremoves = 3,
     int minLength = 16,
-    int maxLength = 999,
+    int maxLength = 18,
+    int absoluteMaxLength = 25,
     int maxDepth = 22,
   }) {
     final algPtr = alg.toNativeUtf8();
@@ -107,12 +108,45 @@ class CubeDart {
         numPremoves,
         minLength,
         maxLength,
+        absoluteMaxLength,
         maxDepth,
         outPtr.cast(),
         1024,
       );
       if (result == -1) {
         throw Exception('Failed to obfuscate algorithm');
+      }
+      return outPtr.cast<Utf8>().toDartString();
+    } finally {
+      calloc.free(algPtr);
+      calloc.free(outPtr);
+    }
+  }
+
+  /// Obfuscates an algorithm using the optimal solver to guarantee shortest scrambles.
+  static String obfuscateOptimal(
+    String alg, {
+    int numPremoves = 3,
+    int minLength = 16,
+    int maxLength = 18,
+    int absoluteMaxLength = 25,
+    int maxDepth = 22,
+  }) {
+    final algPtr = alg.toNativeUtf8();
+    final outPtr = calloc<Uint8>(1024);
+    try {
+      final result = _bindings.cubedart_obfuscate_optimal(
+        algPtr,
+        numPremoves,
+        minLength,
+        maxLength,
+        absoluteMaxLength,
+        maxDepth,
+        outPtr.cast(),
+        1024,
+      );
+      if (result == -1) {
+        throw Exception('Failed to optimally obfuscate algorithm');
       }
       return outPtr.cast<Utf8>().toDartString();
     } finally {

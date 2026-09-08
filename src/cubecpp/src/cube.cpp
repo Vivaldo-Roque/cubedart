@@ -753,8 +753,16 @@ std::optional<std::string> Cube::solveUpright(int maxDepth) const {
     return Solver::solveUpright(*this, maxDepth);
 }
 
+std::optional<std::string> Cube::solveUprightOptimal(int maxDepth) const {
+    return Solver::solveUprightOptimal(*this, maxDepth);
+}
+
 std::optional<std::string> Cube::solve(int maxDepth) const {
     return Solver::solve(*this, maxDepth);
+}
+
+std::optional<std::string> Cube::solveOptimal(int maxDepth) const {
+    return Solver::solveOptimal(*this, maxDepth);
 }
 
 std::string Cube::scramble() { return Solver::scramble(); }

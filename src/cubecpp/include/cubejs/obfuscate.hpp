@@ -56,6 +56,9 @@ std::vector<int> getPremoves(int length);
 //
 // Throws std::invalid_argument if `algorithm` isn't a valid alg string.
 std::string obfuscate(const std::string& algorithm, int numPremoves = 3,
-                       int minLength = 16, int maxLength = 999, int maxDepth = 22);
+                       int minLength = 16, int maxLength = 999, int absoluteMaxLength = 999, int maxDepth = 22, int retries = 0);
+
+std::string obfuscateOptimal(const std::string& algorithm, int numPremoves = 3,
+                              int minLength = 16, int maxLength = 999, int absoluteMaxLength = 999, int maxDepth = 22, int retries = 0);
 
 }  // namespace cubejs

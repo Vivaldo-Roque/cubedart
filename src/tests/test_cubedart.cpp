@@ -89,17 +89,17 @@ void test_obfuscate() {
     char obf[1024] = {0};
     const char* alg = "F R U R' U' F'";
 
-    int res = cubedart_obfuscate(alg, 3, 10, 20, 22, obf, sizeof(obf));
+    int res = cubedart_obfuscate(alg, 3, 10, 20, 25, 22, obf, sizeof(obf));
     TEST_ASSERT(res == 1, "obfuscate returns 1 for valid algorithm");
     TEST_ASSERT(strlen(obf) > 0, "obfuscate produces non-empty output");
     TEST_ASSERT(strcmp(obf, alg) != 0, "obfuscate produces a different algorithm");
     std::cout << "  Original: " << alg << "\n  Obfuscated: " << obf << std::endl;
 
     // Null checks
-    res = cubedart_obfuscate(nullptr, 3, 10, 20, 22, obf, sizeof(obf));
+    res = cubedart_obfuscate(nullptr, 3, 10, 20, 25, 22, obf, sizeof(obf));
     TEST_ASSERT(res == -1, "obfuscate returns -1 for null algorithm");
 
-    res = cubedart_obfuscate(alg, 3, 10, 20, 22, nullptr, sizeof(obf));
+    res = cubedart_obfuscate(alg, 3, 10, 20, 25, 22, nullptr, sizeof(obf));
     TEST_ASSERT(res == -1, "obfuscate returns -1 for null output buffer");
 }
 

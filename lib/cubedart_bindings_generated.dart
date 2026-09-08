@@ -105,6 +105,7 @@ class CubedartBindings {
     int num_premoves,
     int min_length,
     int max_length,
+    int absolute_max_length,
     int max_depth,
     ffi.Pointer<pkg_ffi.Utf8> out_obfuscated,
     int out_max_len,
@@ -114,6 +115,7 @@ class CubedartBindings {
       num_premoves,
       min_length,
       max_length,
+      absolute_max_length,
       max_depth,
       out_obfuscated,
       out_max_len,
@@ -129,6 +131,7 @@ class CubedartBindings {
             ffi.Int32,
             ffi.Int32,
             ffi.Int32,
+            ffi.Int32,
             ffi.Pointer<pkg_ffi.Utf8>,
             ffi.Int32,
           )
@@ -138,6 +141,58 @@ class CubedartBindings {
       .asFunction<
         int Function(
           ffi.Pointer<pkg_ffi.Utf8>,
+          int,
+          int,
+          int,
+          int,
+          int,
+          ffi.Pointer<pkg_ffi.Utf8>,
+          int,
+        )
+      >();
+
+  int cubedart_obfuscate_optimal(
+    ffi.Pointer<pkg_ffi.Utf8> alg,
+    int num_premoves,
+    int min_length,
+    int max_length,
+    int absolute_max_length,
+    int max_depth,
+    ffi.Pointer<pkg_ffi.Utf8> out_obfuscated,
+    int out_max_len,
+  ) {
+    return _cubedart_obfuscate_optimal(
+      alg,
+      num_premoves,
+      min_length,
+      max_length,
+      absolute_max_length,
+      max_depth,
+      out_obfuscated,
+      out_max_len,
+    );
+  }
+
+  late final _cubedart_obfuscate_optimalPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int32 Function(
+            ffi.Pointer<pkg_ffi.Utf8>,
+            ffi.Int32,
+            ffi.Int32,
+            ffi.Int32,
+            ffi.Int32,
+            ffi.Int32,
+            ffi.Pointer<pkg_ffi.Utf8>,
+            ffi.Int32,
+          )
+        >
+      >('cubedart_obfuscate_optimal');
+  late final _cubedart_obfuscate_optimal = _cubedart_obfuscate_optimalPtr
+      .asFunction<
+        int Function(
+          ffi.Pointer<pkg_ffi.Utf8>,
+          int,
           int,
           int,
           int,

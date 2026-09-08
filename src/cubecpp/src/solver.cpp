@@ -418,6 +418,38 @@ void Solver::phase1(SearchState& state, int depth, int maxDepthTotal,
     }
 }
 
+void Solver::phase2searchOptimal(SearchState& state, int exactTotalLength, std::optional<std::string>& solution) {
+    initPhase2(state, true);
+    int depth = exactTotalLength - state.depth;
+    if (depth < 0) return;
+    phase2(state, depth, solution);
+}
+
+void Solver::phase1Optimal(SearchState& state, int depth, int exactTotalLength, std::optional<std::string>& solution) {
+    if (depth == 0) {
+        if (minDist1(state) == 0) {
+            bool lastIsPhase2Move = false;
+            if (state.lastMove != -1) {
+                const auto& m2 = allMoves2();
+                lastIsPhase2Move = std::find(m2.begin(), m2.end(), state.lastMove) != m2.end();
+            }
+            if (state.lastMove == -1 || !lastIsPhase2Move) {
+                phase2searchOptimal(state, exactTotalLength, solution);
+            }
+        }
+    } else {
+        if (minDist1(state) <= depth) {
+            const auto& candidates =
+                (state.lastMove == -1) ? allMoves1() : nextMoves1()[state.lastMove / 3];
+            for (int move : candidates) {
+                SearchState next = next1(state, move);
+                phase1Optimal(next, depth - 1, exactTotalLength, solution);
+                if (solution) return;
+            }
+        }
+    }
+}
+
 std::optional<std::string> Solver::solveUpright(const Cube& cube, int maxDepth) {
     if (!initialized_) init();
 
@@ -446,6 +478,67 @@ std::optional<std::string> Solver::solve(const Cube& cube, int maxDepth) {
     std::array<int, 6> rotation = rotationCube.center;
 
     auto uprightSolution = solveUpright(c, maxDepth);
+    if (!uprightSolution) return std::nullopt;
+
+    static const char faceNames[6] = {'U', 'R', 'F', 'D', 'L', 'B'};
+    auto faceNum = [](char ch) -> int {
+        switch (ch) {
+            case 'U': return 0;
+            case 'R': return 1;
+            case 'F': return 2;
+            case 'D': return 3;
+            case 'L': return 4;
+            case 'B': return 5;
+            default: return -1;
+        }
+    };
+
+    std::string result;
+    std::istringstream iss(*uprightSolution);
+    std::string token;
+    bool first = true;
+    while (iss >> token) {
+        int origFace = faceNum(token[0]);
+        int newFace = rotation[origFace];
+        if (!first) result += ' ';
+        first = false;
+        result += faceNames[newFace];
+        if (token.size() > 1) result += token[1];
+    }
+
+    return result;
+}
+
+std::optional<std::string> Solver::solveUprightOptimal(const Cube& cube, int maxDepth) {
+    if (!initialized_) init();
+
+    SearchState root;
+    initState(root, cube);
+
+    for (int totalLength = 1; totalLength <= maxDepth; totalLength++) {
+        for (int d1 = 0; d1 <= totalLength; d1++) {
+            std::optional<std::string> solution;
+            phase1Optimal(root, d1, totalLength, solution);
+            if (solution) {
+                std::string s = *solution;
+                while (!s.empty() && s.back() == ' ') s.pop_back();
+                return s;
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<std::string> Solver::solveOptimal(const Cube& cube, int maxDepth) {
+    Cube c = cube.clone();
+    std::string uprightAlg = c.upright();
+    c.move(uprightAlg);
+
+    Cube rotationCube;
+    rotationCube.move(uprightAlg);
+    std::array<int, 6> rotation = rotationCube.center;
+
+    auto uprightSolution = solveUprightOptimal(c, maxDepth);
     if (!uprightSolution) return std::nullopt;
 
     static const char faceNames[6] = {'U', 'R', 'F', 'D', 'L', 'B'};

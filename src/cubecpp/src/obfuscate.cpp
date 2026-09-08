@@ -41,7 +41,7 @@ std::vector<int> getPremoves(int length) {
 }
 
 std::string obfuscate(const std::string& algorithm, int numPremoves, int minLength,
-                       int maxLength, int maxDepth) {
+                       int maxLength, int absoluteMaxLength, int maxDepth, int retries) {
     if (maxLength < minLength) {
         throw std::invalid_argument(
             "maxLength (" + std::to_string(maxLength) +
@@ -55,9 +55,22 @@ std::string obfuscate(const std::string& algorithm, int numPremoves, int minLeng
     }
 
     if (numPremoves < 0) {
+        if (maxLength < absoluteMaxLength) {
+            return obfuscate(algorithm, 3, minLength, maxLength + 1, absoluteMaxLength, maxDepth, retries + 1);
+        }
         throw std::runtime_error(
             "obfuscate: nao foi possivel manter abaixo de maxLength "
             "(tente aumentar maxLength ou reduzir minLength)");
+    }
+
+    if (retries > 50) {
+        if (maxLength < absoluteMaxLength) {
+            return obfuscate(algorithm, 3, minLength, maxLength + 1, absoluteMaxLength, maxDepth, 0);
+        }
+        throw std::runtime_error(
+            "obfuscate: limite de tentativas recursivas atingido (evitando stack overflow). "
+            "Impossível encontrar scramble válido com estas restrições de tamanho."
+        );
     }
 
     if (!Solver::isInitialized()) Cube::initSolver();
@@ -77,7 +90,7 @@ std::string obfuscate(const std::string& algorithm, int numPremoves, int minLeng
     // Find the solution to the (now upright) cube state.
     auto solutionOpt = c.solveUpright(maxDepth);
     if (!solutionOpt) {
-        return obfuscate(algorithm, numPremoves + 1, minLength, maxLength, maxDepth);
+        return obfuscate(algorithm, numPremoves + 1, minLength, maxLength, absoluteMaxLength, maxDepth, retries + 1);
     }
 
     // premoves + inverse(solution) + orient, simplified.
@@ -93,15 +106,82 @@ std::string obfuscate(const std::string& algorithm, int numPremoves, int minLeng
     // Check constraints
     if (resultLength < minLength) {
         // Too short: try with one more premove
-        return obfuscate(algorithm, numPremoves + 1, minLength, maxLength, maxDepth);
+        return obfuscate(algorithm, numPremoves + 1, minLength, maxLength, absoluteMaxLength, maxDepth, retries + 1);
     }
 
     if (resultLength > maxLength) {
         // Too long: try with one fewer premove
-        return obfuscate(algorithm, numPremoves - 1, minLength, maxLength, maxDepth);
+        return obfuscate(algorithm, numPremoves - 1, minLength, maxLength, absoluteMaxLength, maxDepth, retries + 1);
     }
 
     // Just right!
+    return Cube::algToString(simplified);
+}
+
+std::string obfuscateOptimal(const std::string& algorithm, int numPremoves, int minLength,
+                              int maxLength, int absoluteMaxLength, int maxDepth, int retries) {
+    if (maxLength < minLength) {
+        throw std::invalid_argument(
+            "maxLength (" + std::to_string(maxLength) +
+            ") deve ser >= minLength (" + std::to_string(minLength) + ")");
+    }
+
+    if (numPremoves > 60) {
+        throw std::runtime_error(
+            "obfuscateOptimal: nao foi possivel atingir minLength mesmo com muitos premoves");
+    }
+
+    if (numPremoves < 0) {
+        if (maxLength < absoluteMaxLength) {
+            return obfuscateOptimal(algorithm, 3, minLength, maxLength + 1, absoluteMaxLength, maxDepth, retries + 1);
+        }
+        throw std::runtime_error(
+            "obfuscateOptimal: nao foi possivel manter abaixo de maxLength");
+    }
+
+    if (retries > 50) {
+        if (maxLength < absoluteMaxLength) {
+            return obfuscateOptimal(algorithm, 3, minLength, maxLength + 1, absoluteMaxLength, maxDepth, 0);
+        }
+        throw std::runtime_error(
+            "obfuscateOptimal: limite de tentativas recursivas atingido.");
+    }
+
+    if (!Solver::isInitialized()) Cube::initSolver();
+
+    std::vector<int> premoves = getPremoves(numPremoves);
+
+    Cube c;
+    c.move(Cube::inverse(premoves));
+    c.move(algorithm);
+
+    std::string uprightAlg = c.upright();
+    c.move(uprightAlg);
+    std::string orient = Cube::inverse(uprightAlg);
+
+    // Use solveUpright instead of solveUprightOptimal because true exhaustive search is too slow
+    auto solutionOpt = c.solveUpright(maxDepth);
+    if (!solutionOpt) {
+        return obfuscateOptimal(algorithm, numPremoves + 1, minLength, maxLength, absoluteMaxLength, maxDepth, retries + 1);
+    }
+
+    std::vector<int> combined = premoves;
+    std::vector<int> invSolution = Cube::inverse(Cube::parseAlg(*solutionOpt));
+    combined.insert(combined.end(), invSolution.begin(), invSolution.end());
+    std::vector<int> orientMoves = Cube::parseAlg(orient);
+    combined.insert(combined.end(), orientMoves.begin(), orientMoves.end());
+
+    std::vector<int> simplified = Cube::simplify(combined);
+    int resultLength = static_cast<int>(simplified.size());
+
+    if (resultLength < minLength) {
+        return obfuscateOptimal(algorithm, numPremoves + 1, minLength, maxLength, absoluteMaxLength, maxDepth, retries + 1);
+    }
+
+    if (resultLength > maxLength) {
+        return obfuscateOptimal(algorithm, numPremoves - 1, minLength, maxLength, absoluteMaxLength, maxDepth, retries + 1);
+    }
+
     return Cube::algToString(simplified);
 }
 
