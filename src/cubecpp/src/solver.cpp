@@ -10,14 +10,14 @@ namespace cubejs {
 // --- Static storage ----------------------------------------------------
 
 bool Solver::initialized_ = false;
-std::vector<std::vector<int>> Solver::twistTable_;
-std::vector<std::vector<int>> Solver::flipTable_;
-std::vector<std::vector<int>> Solver::FRtoBRTable_;
-std::vector<std::vector<int>> Solver::URFtoDLFTable_;
-std::vector<std::vector<int>> Solver::URtoDFTable_;
-std::vector<std::vector<int>> Solver::URtoULTable_;
-std::vector<std::vector<int>> Solver::UBtoDFTable_;
-std::vector<std::vector<int>> Solver::mergeURtoDFTable_;
+std::vector<uint16_t> Solver::twistTable_;
+std::vector<uint16_t> Solver::flipTable_;
+std::vector<uint16_t> Solver::FRtoBRTable_;
+std::vector<uint16_t> Solver::URFtoDLFTable_;
+std::vector<uint16_t> Solver::URtoDFTable_;
+std::vector<uint16_t> Solver::URtoULTable_;
+std::vector<uint16_t> Solver::UBtoDFTable_;
+std::vector<int16_t> Solver::mergeURtoDFTable_;
 std::vector<uint32_t> Solver::sliceTwistPruning_;
 std::vector<uint32_t> Solver::sliceFlipPruning_;
 std::vector<uint32_t> Solver::sliceURFtoDLFParityPruning_;
@@ -123,21 +123,22 @@ using CoordSetter = void (Cube::*)(int);
 
 // Loops through all valid values for the coordinate, setting the cube's
 // state in each iteration, then applies each of the 18 basic moves to
-// the cube and records the resulting coordinate.
-std::vector<std::vector<int>> computeMoveTable(bool corners, CoordGetter getter,
-                                                CoordSetter setter, int size) {
+// the cube and records the resulting coordinate in a contiguous 1D vector.
+std::vector<uint16_t> computeMoveTable(bool corners, CoordGetter getter,
+                                       CoordSetter setter, int size) {
     Cube cube;
-    std::vector<std::vector<int>> table(size, std::vector<int>(18));
+    std::vector<uint16_t> table(static_cast<size_t>(size) * 18);
     const auto& moves = Cube::moves();
 
     for (int i = 0; i < size; i++) {
         (cube.*setter)(i);
+        size_t base = static_cast<size_t>(i) * 18;
         int idx = 0;
         for (int j = 0; j <= 5; j++) {
             const MoveDef& mv = moves[j];
             for (int k = 0; k <= 2; k++) {
                 if (corners) cube.cornerMultiply(mv); else cube.edgeMultiply(mv);
-                table[i][idx++] = (cube.*getter)();
+                table[base + idx++] = static_cast<uint16_t>((cube.*getter)());
             }
             // 4th application restores the cube before moving to the next face.
             if (corners) cube.cornerMultiply(mv); else cube.edgeMultiply(mv);
@@ -229,12 +230,13 @@ void Solver::init() {
     URtoULTable_ = computeMoveTable(false, &Cube::URtoUL, &Cube::setURtoUL, N_URtoUL);
     UBtoDFTable_ = computeMoveTable(false, &Cube::UBtoDF, &Cube::setUBtoDF, N_UBtoDF);
 
-    mergeURtoDFTable_.assign(336, std::vector<int>(336));
+    mergeURtoDFTable_.assign(336 * 336, -1);
     {
         Cube a, b;
         for (int u = 0; u < 336; u++) {
             for (int v = 0; v < 336; v++) {
-                mergeURtoDFTable_[u][v] = mergeURtoDFCompute(a, b, u, v);
+                mergeURtoDFTable_[u * 336 + v] =
+                    static_cast<int16_t>(mergeURtoDFCompute(a, b, u, v));
             }
         }
     }
@@ -244,8 +246,8 @@ void Solver::init() {
         [](int index, int move) -> int {
             int slice = index % N_SLICE1;
             int twist = index / N_SLICE1;
-            int newSlice = FRtoBRTable_[slice * 24][move] / 24;
-            int newTwist = twistTable_[twist][move];
+            int newSlice = FRtoBRTable_[(slice * 24) * 18 + move] / 24;
+            int newTwist = twistTable_[twist * 18 + move];
             return newTwist * N_SLICE1 + newSlice;
         });
 
@@ -254,8 +256,8 @@ void Solver::init() {
         [](int index, int move) -> int {
             int slice = index % N_SLICE1;
             int flip = index / N_SLICE1;
-            int newSlice = FRtoBRTable_[slice * 24][move] / 24;
-            int newFlip = flipTable_[flip][move];
+            int newSlice = FRtoBRTable_[(slice * 24) * 18 + move] / 24;
+            int newFlip = flipTable_[flip * 18 + move];
             return newFlip * N_SLICE1 + newSlice;
         });
 
@@ -266,8 +268,8 @@ void Solver::init() {
             int slice = (index / 2) % N_SLICE2;
             int URFtoDLF = (index / 2) / N_SLICE2;
             int newParity = parityTable[parity][move];
-            int newSlice = FRtoBRTable_[slice][move];
-            int newURFtoDLF = URFtoDLFTable_[URFtoDLF][move];
+            int newSlice = FRtoBRTable_[slice * 18 + move];
+            int newURFtoDLF = URFtoDLFTable_[URFtoDLF * 18 + move];
             return (newURFtoDLF * N_SLICE2 + newSlice) * 2 + newParity;
         });
 
@@ -278,8 +280,8 @@ void Solver::init() {
             int slice = (index / 2) % N_SLICE2;
             int URtoDF = (index / 2) / N_SLICE2;
             int newParity = parityTable[parity][move];
-            int newSlice = FRtoBRTable_[slice][move];
-            int newURtoDF = URtoDFTable_[URtoDF][move];
+            int newSlice = FRtoBRTable_[slice * 18 + move];
+            int newURtoDF = URtoDFTable_[URtoDF * 18 + move];
             return (newURtoDF * N_SLICE2 + newSlice) * 2 + newParity;
         });
 
@@ -317,9 +319,9 @@ Solver::SearchState Solver::next1(SearchState& s, int move) {
     n.lastMove = move;
     n.depth = s.depth + 1;
 
-    n.flip = flipTable_[s.flip][move];
-    n.twist = twistTable_[s.twist][move];
-    n.slice = FRtoBRTable_[s.slice * 24][move] / 24;
+    n.flip = flipTable_[s.flip * 18 + move];
+    n.twist = twistTable_[s.twist * 18 + move];
+    n.slice = FRtoBRTable_[(s.slice * 24) * 18 + move] / 24;
 
     return n;
 }
@@ -339,14 +341,14 @@ void Solver::initPhase2(SearchState& s, bool top) {
 
     initPhase2(*s.parent, false);
 
-    s.URFtoDLF = URFtoDLFTable_[s.parent->URFtoDLF][s.lastMove];
-    s.FRtoBR = FRtoBRTable_[s.parent->FRtoBR][s.lastMove];
+    s.URFtoDLF = URFtoDLFTable_[s.parent->URFtoDLF * 18 + s.lastMove];
+    s.FRtoBR = FRtoBRTable_[s.parent->FRtoBR * 18 + s.lastMove];
     s.parity = parityTable[s.parent->parity][s.lastMove];
-    s.URtoUL = URtoULTable_[s.parent->URtoUL][s.lastMove];
-    s.UBtoDF = UBtoDFTable_[s.parent->UBtoDF][s.lastMove];
+    s.URtoUL = URtoULTable_[s.parent->URtoUL * 18 + s.lastMove];
+    s.UBtoDF = UBtoDFTable_[s.parent->UBtoDF * 18 + s.lastMove];
 
     if (top) {
-        s.URtoDF = mergeURtoDFTable_[s.URtoUL][s.UBtoDF];
+        s.URtoDF = mergeURtoDFTable_[s.URtoUL * 336 + s.UBtoDF];
     }
 }
 
@@ -356,10 +358,10 @@ Solver::SearchState Solver::next2(SearchState& s, int move) {
     n.lastMove = move;
     n.depth = s.depth + 1;
 
-    n.URFtoDLF = URFtoDLFTable_[s.URFtoDLF][move];
-    n.FRtoBR = FRtoBRTable_[s.FRtoBR][move];
+    n.URFtoDLF = URFtoDLFTable_[s.URFtoDLF * 18 + move];
+    n.FRtoBR = FRtoBRTable_[s.FRtoBR * 18 + move];
     n.parity = parityTable[s.parity][move];
-    n.URtoDF = URtoDFTable_[s.URtoDF][move];
+    n.URtoDF = URtoDFTable_[s.URtoDF * 18 + move];
 
     return n;
 }

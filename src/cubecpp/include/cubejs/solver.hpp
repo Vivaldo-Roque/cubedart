@@ -33,15 +33,15 @@ public:
 private:
     static bool initialized_;
 
-    // Move tables: table[coordValue][moveCode (0..17)] -> newCoordValue
-    static std::vector<std::vector<int>> twistTable_;
-    static std::vector<std::vector<int>> flipTable_;
-    static std::vector<std::vector<int>> FRtoBRTable_;
-    static std::vector<std::vector<int>> URFtoDLFTable_;
-    static std::vector<std::vector<int>> URtoDFTable_;
-    static std::vector<std::vector<int>> URtoULTable_;
-    static std::vector<std::vector<int>> UBtoDFTable_;
-    static std::vector<std::vector<int>> mergeURtoDFTable_;  // 336 x 336
+    // Move tables (flattened 1D): table[coordValue * 18 + moveCode (0..17)] -> newCoordValue
+    static std::vector<uint16_t> twistTable_;
+    static std::vector<uint16_t> flipTable_;
+    static std::vector<uint16_t> FRtoBRTable_;
+    static std::vector<uint16_t> URFtoDLFTable_;
+    static std::vector<uint16_t> URtoDFTable_;
+    static std::vector<uint16_t> URtoULTable_;
+    static std::vector<uint16_t> UBtoDFTable_;
+    static std::vector<int16_t> mergeURtoDFTable_;  // 336 * 336
 
     // Pruning tables: 4 bits per entry, packed 8-to-a-uint32_t.
     static std::vector<uint32_t> sliceTwistPruning_;
