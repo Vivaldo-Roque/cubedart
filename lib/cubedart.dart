@@ -1,55 +1,20 @@
 import 'dart:ffi';
-import 'dart:io';
 import 'package:ffi/ffi.dart';
 
-import 'cubedart_bindings_generated.dart';
-
-const String _libName = 'cubedart';
-
-/// The dynamic library in which the symbols for [CubedartBindings] can be found.
-final DynamicLibrary _dylib = () {
-  if (Platform.isMacOS || Platform.isIOS) {
-    return DynamicLibrary.open('$_libName.framework/$_libName');
-  }
-  if (Platform.isAndroid || Platform.isLinux) {
-    return DynamicLibrary.open('lib$_libName.so');
-  }
-  if (Platform.isWindows) {
-    const dllName = '$_libName.dll';
-    final candidates = [
-      dllName,
-      '../../$dllName',
-      '../$dllName',
-      'build/windows_x64/shared/Debug/$dllName',
-      'build/windows_x64/shared/Release/$dllName',
-      '../build/windows_x64/shared/Debug/$dllName',
-    ];
-    for (final path in candidates) {
-      if (File(path).existsSync()) {
-        try {
-          return DynamicLibrary.open(File(path).absolute.path);
-        } catch (_) {}
-      }
-    }
-    return DynamicLibrary.open(dllName);
-  }
-  throw UnsupportedError('Unknown platform: ${Platform.operatingSystem}');
-}();
-
-/// The bindings to the native functions in [_dylib].
-final CubedartBindings _bindings = CubedartBindings(_dylib);
+// Native symbols are resolved via Native Assets (see hook/build.dart).
+import 'cubedart_bindings_generated.dart' as native;
 
 class CubeDart {
   /// Initializes the solver tables. Must be called once before solving.
   static void initSolver() {
-    _bindings.cubedart_init_solver();
+    native.cubedart_init_solver();
   }
 
   /// Checks if a facelet string represents a solved cube.
   static bool isSolved(String facelets) {
     final faceletsPtr = facelets.toNativeUtf8();
     try {
-      final result = _bindings.cubedart_is_solved(faceletsPtr);
+      final result = native.cubedart_is_solved(faceletsPtr);
       if (result == -1) {
         throw Exception('Invalid facelets string');
       }
@@ -64,7 +29,7 @@ class CubeDart {
     final faceletsPtr = facelets.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
     try {
-      final result = _bindings.cubedart_solve(
+      final result = native.cubedart_solve(
         faceletsPtr,
         maxDepth,
         outPtr.cast(),
@@ -88,7 +53,7 @@ class CubeDart {
     final faceletsPtr = facelets.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
     try {
-      final result = _bindings.cubedart_solve_upright(
+      final result = native.cubedart_solve_upright(
         faceletsPtr,
         maxDepth,
         outPtr.cast(),
@@ -119,7 +84,7 @@ class CubeDart {
     final algPtr = alg.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
     try {
-      final result = _bindings.cubedart_obfuscate(
+      final result = native.cubedart_obfuscate(
         algPtr,
         numPremoves,
         minLength,
@@ -151,7 +116,7 @@ class CubeDart {
     final algPtr = alg.toNativeUtf8();
     final outPtr = calloc<Uint8>(1024);
     try {
-      final result = _bindings.cubedart_obfuscate_optimal(
+      final result = native.cubedart_obfuscate_optimal(
         algPtr,
         numPremoves,
         minLength,
@@ -175,7 +140,7 @@ class CubeDart {
   static String scramble() {
     final outPtr = calloc<Uint8>(1024);
     try {
-      _bindings.cubedart_scramble(outPtr.cast(), 1024);
+      native.cubedart_scramble(outPtr.cast(), 1024);
       return outPtr.cast<Utf8>().toDartString();
     } finally {
       calloc.free(outPtr);
